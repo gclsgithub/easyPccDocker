@@ -21,16 +21,16 @@ services:
 
   python:
     build: ./docker_files/python3.8
-    command: uwsgi --ini ./server/u-tokyo/easyPccWeb/uwsgi.ini
+    command: uwsgi --ini /code/easyPccWeb/uwsgi.ini 
     volumes:
       - ./server/u-tokyo:/code
     expose:
-      - "8080"
+      - "8001"
     depends_on:
       - db
 
   nginx:
-    image: nginx:1.13
+    image: nginx:1.16
     ports:
       - "8000:8000"
     volumes:
