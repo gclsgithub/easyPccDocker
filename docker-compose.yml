@@ -1,0 +1,41 @@
+version: '3'
+
+volumes:
+  postgres_data: {}
+
+services:
+  db:
+    image: mysql:5.7
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: uTokyoDB
+      MYSQL_USER: easyPcc
+      MYSQL_PASSWORD: toward2012
+      TZ: 'Asia/Tokyo'
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
+
+  python:
+    build: ./docker_files/python3.8
+    command: uwsgi --ini ./server/u-tokyo/easyPccWeb/uwsgi.ini
+    volumes:
+      - ./server/u-tokyo:/code
+    expose:
+      - "8080"
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:1.13
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./docker_files/nginx/conf:/etc/nginx/conf.d
+      - ./docker_files/nginx/uwsgi_params:/etc/nginx/uwsgi_params
+      - ./static:/static
+    depends_on:
+      - python
